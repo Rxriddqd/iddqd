@@ -1,0 +1,50 @@
+{
+  "name": "iddqd-discord-bot",
+  "version": "1.0.0",
+  "description": "A production-ready Discord bot built with Discord.js v14 and Components V2",
+  "type": "module",
+  "main": "dist/src/app.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node dist/src/app.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "commands:register": "tsx scripts/register-commands.ts",
+    "commands:clear": "tsx scripts/clear-commands.ts",
+    "commands:list": "tsx scripts/list-commands.ts",
+    "refresh-summon": "tsx scripts/refresh-summon-panel.ts",
+    "check-sheets": "tsx scripts/softres-sheets-check.ts",
+    "test-sheets": "tsx scripts/test-sheets.ts"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "discord.js",
+    "typescript",
+    "components-v2"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "googleapis": "^144.0.0",
+    "pino": "^9.5.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "eslint": "^9.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
