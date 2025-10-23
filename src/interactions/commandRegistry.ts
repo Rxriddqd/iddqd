@@ -4,7 +4,7 @@
 
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { readdir, stat } from 'fs/promises';
+import { readdir } from 'fs/promises';
 import type { SlashCommandModule } from '../../types/Command.js';
 import { logger } from '../core/logger.js';
 

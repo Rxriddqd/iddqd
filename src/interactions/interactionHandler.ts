@@ -194,10 +194,15 @@ export async function safeReply(
   ephemeral = true
 ) {
   try {
+    const options: any = { content };
+    if (ephemeral) {
+      options.flags = 64; // EPHEMERAL
+    }
+    
     if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content, flags: ephemeral ? 64 : 0 });
+      await interaction.followUp(options);
     } else {
-      await interaction.reply({ content, flags: ephemeral ? 64 : 0 });
+      await interaction.reply(options);
     }
   } catch (error) {
     logger.error({ error }, 'Failed to send reply');

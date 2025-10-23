@@ -16,8 +16,9 @@ import {
   type V2Section,
   type V2ActionRow,
   type V2MessagePayload,
-  type V2TopLevel,
   type V2ActionRowChild,
+  type V2MediaGallery,
+  type V2File,
 } from '../../types/Componentsv2.js';
 
 /**
@@ -111,7 +112,7 @@ export function section(
  * Create a container component
  */
 export function container(
-  components: V2TopLevel[],
+  components: (V2ActionRow | V2TextDisplay | V2Section | V2MediaGallery | V2Separator | V2File)[],
   accentColor?: number,
   spoiler = false
 ): V2Container {
