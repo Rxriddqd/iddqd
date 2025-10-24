@@ -8,7 +8,8 @@ A production-ready Discord bot built with **Discord.js v14**, **TypeScript stric
 - **⚡ TypeScript** - Strict mode for maximum type safety
 - **🔐 Security** - Rate limiting, RBAC, and environment validation
 - **📊 Admin Dashboard** - Interactive dashboard with category navigation
-- **🎮 Mini-Games** - FlaskGamba and other interactive games
+- **🎮 Mini-Games** - FlaskGamba, Tournament mode, and other interactive games
+- **🏆 Tournament Mode** - Competitive elimination game with Redis backend
 - **📋 Role & Summon Panels** - Dynamic role assignment and notifications
 - **💾 Redis Integration** - Fast short-term data storage with automatic fallback
 - **📁 Persistent Disk** - Long-term storage for logs, backups, and historical data
@@ -275,6 +276,7 @@ The compiled JavaScript will be in the `dist/` directory.
 
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Project architecture and design decisions
 - **[v2components.md](docs/v2components.md)** - Components V2 reference guide
+- **[TOURNAMENT.md](docs/TOURNAMENT.md)** - Tournament game mode setup and usage guide
 - **[IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Implementation details and changes
 - **[ARCHITECTURE_DIAGRAM.md](docs/ARCHITECTURE_DIAGRAM.md)** - System architecture diagrams
 - **[RENDER_DEPLOYMENT.md](docs/RENDER_DEPLOYMENT.md)** - Complete guide for deploying to Render with Redis and Persistent Disk
@@ -295,6 +297,18 @@ The project includes three GitHub Actions workflows:
 ```env
 DASHBOARD_CHANNEL_ID=channel_id_here
 ```
+
+### Tournament Mode
+
+```env
+REDIS_URL=redis://localhost:6379
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your_password  # Optional
+TOURNAMENT_CHANNEL_ID=channel_id_here
+```
+
+See [docs/TOURNAMENT.md](docs/TOURNAMENT.md) for detailed tournament setup and usage.
 
 ### FlaskGamba
 
