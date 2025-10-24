@@ -18,8 +18,10 @@ import {
 } from '../gameStateManager.js';
 import { removeData } from '../storage.js';
 import { promises as fs } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
-const TEST_DIR = '/tmp/iddqd-game-tests';
+const TEST_DIR = join(tmpdir(), 'iddqd-game-tests');
 
 describe('Game State Manager', () => {
   beforeAll(async () => {

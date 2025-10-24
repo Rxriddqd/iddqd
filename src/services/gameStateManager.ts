@@ -334,7 +334,8 @@ export async function createFlaskGambaRound(
   question: string,
   options: string[]
 ): Promise<string | null> {
-  const gameId = `flaskgamba-${Date.now()}`;
+  // Use timestamp + random component to avoid collisions
+  const gameId = `flaskgamba-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   
   const success = await createGame(gameId, 'flaskgamba', {
     channelId,

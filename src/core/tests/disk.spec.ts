@@ -6,8 +6,9 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { writeDisk, readDisk, existsDisk, deleteDisk, writeJSON, readJSON, appendDisk, getDiskPath } from '../disk.js';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { tmpdir } from 'os';
 
-const TEST_DIR = '/tmp/iddqd-disk-tests';
+const TEST_DIR = path.join(tmpdir(), 'iddqd-disk-tests');
 
 describe('Persistent Disk', () => {
   beforeAll(async () => {

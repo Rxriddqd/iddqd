@@ -18,8 +18,10 @@ import {
   saveBackup,
 } from '../storage.js';
 import { promises as fs } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
-const TEST_DIR = '/tmp/iddqd-storage-tests';
+const TEST_DIR = join(tmpdir(), 'iddqd-storage-tests');
 
 describe('Storage Service', () => {
   beforeAll(async () => {
