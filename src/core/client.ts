@@ -60,14 +60,20 @@ export function buildClient(): Client {
     
     logger.info(`✅ Logged in as ${c.user.tag}`);
 
-    // Initialize dashboard if configured
+    // Initialize dashboard if configured and valid
     if (env.DASHBOARD_CHANNEL_ID) {
-      try {
-        const { refreshDashboard } = await import('../interactions/dashboard/view.js');
-        await refreshDashboard(c, env.DASHBOARD_CHANNEL_ID);
-        logger.info('✅ Dashboard initialized');
-      } catch (error) {
-        logger.error({ error }, 'Failed to initialize dashboard');
+      const id = env.DASHBOARD_CHANNEL_ID.trim();
+      const isSnowflake = /^\d{17,20}$/.test(id);
+      if (!isSnowflake) {
+        logger.warn({ channelId: id }, 'Skipping dashboard init: DASHBOARD_CHANNEL_ID is not a valid snowflake');
+      } else {
+        try {
+          const { refreshDashboard } = await import('../interactions/dashboard/view.js');
+          await refreshDashboard(c, id);
+          logger.info('✅ Dashboard initialized');
+        } catch (error) {
+          logger.error({ error }, 'Failed to initialize dashboard');
+        }
       }
     }
 
