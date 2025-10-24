@@ -284,7 +284,8 @@ async function handleEndRound(interaction: ButtonInteraction, tournamentId: stri
   
   await interaction.deferReply({ flags: 64 });
   
-  const result = await endRound(tournamentId, 50);
+  // Use default elimination percentage (50%)
+  const result = await endRound(tournamentId);
   
   if (!result.success) {
     await interaction.editReply({

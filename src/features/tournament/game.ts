@@ -3,6 +3,11 @@
  */
 
 import { logger } from '../../core/logger.js';
+
+/**
+ * Default elimination percentage for tournament rounds
+ */
+const DEFAULT_ELIMINATION_PERCENTAGE = 50;
 import {
   TournamentStatus,
   type TournamentConfig,
@@ -19,7 +24,6 @@ import {
   saveRoundData,
   getRoundData,
   saveTournamentStats,
-
   deleteAllUserRolls,
 } from './storage.js';
 
@@ -143,7 +147,7 @@ export async function processUserRoll(
  */
 export async function endRound(
   tournamentId: string,
-  eliminationPercentage: number = 50
+  eliminationPercentage: number = DEFAULT_ELIMINATION_PERCENTAGE
 ): Promise<{ success: boolean; message: string; eliminated?: string[] }> {
   const config = await getTournamentConfig(tournamentId);
   
@@ -166,7 +170,8 @@ export async function endRound(
   
   // Calculate cutoff
   const eliminateCount = Math.floor(sortedRolls.length * (eliminationPercentage / 100));
-  const cutoffRoll = sortedRolls[sortedRolls.length - eliminateCount - 1]?.roll || 0;
+  const cutoffIndex = Math.max(0, sortedRolls.length - eliminateCount - 1);
+  const cutoffRoll = sortedRolls[cutoffIndex]?.roll || 0;
   
   // Determine eliminated users
   const eliminated = sortedRolls
