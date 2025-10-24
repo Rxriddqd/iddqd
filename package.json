@@ -1,7 +1,7 @@
 {
   "name": "iddqd-discord-bot",
   "version": "1.0.0",
-  "description": "A production-ready Discord bot built with Discord.js v14 and Components V2",
+  "description": "iddqd Guild Bot",
   "type": "module",
   "main": "dist/src/app.js",
   "engines": {

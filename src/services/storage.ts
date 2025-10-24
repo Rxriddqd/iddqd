@@ -17,6 +17,14 @@ export interface StorageOptions {
 }
 
 /**
+ * Sanitize a key to be safe for use as a filename on all platforms
+ */
+function safeKey(key: string): string {
+  // Replace characters invalid on Windows and reserved path separators
+  return key.replace(/[<>:"/\\|?*]/g, '_');
+}
+
+/**
  * Store data with automatic fallback
  * Uses Redis for short-term data, with optional disk persistence
  */
@@ -32,7 +40,7 @@ export async function storeData(
   
   // If persist to disk is enabled or Redis failed, write to disk
   if (persistToDisk || !redisSuccess) {
-    const diskPath = `cache/${key}.txt`;
+    const diskPath = `cache/${safeKey(key)}.txt`;
     const diskSuccess = await writeDisk(diskPath, value);
     
     if (!redisSuccess && !diskSuccess) {
@@ -58,7 +66,7 @@ export async function retrieveData(key: string): Promise<string | null> {
   }
   
   // Fall back to disk
-  const diskPath = `cache/${key}.txt`;
+  const diskPath = `cache/${safeKey(key)}.txt`;
   const diskValue = await readDisk(diskPath);
   
   // If found on disk, restore to Redis for faster access next time
@@ -74,7 +82,7 @@ export async function retrieveData(key: string): Promise<string | null> {
  */
 export async function removeData(key: string): Promise<boolean> {
   const redisSuccess = await deleteRedis(key);
-  const diskPath = `cache/${key}.txt`;
+  const diskPath = `cache/${safeKey(key)}.txt`;
   const diskSuccess = await deleteDisk(diskPath);
   
   return redisSuccess || diskSuccess;
@@ -89,7 +97,7 @@ export async function dataExists(key: string): Promise<boolean> {
     return true;
   }
   
-  const diskPath = `cache/${key}.txt`;
+  const diskPath = `cache/${safeKey(key)}.txt`;
   return await existsDisk(diskPath);
 }
 
