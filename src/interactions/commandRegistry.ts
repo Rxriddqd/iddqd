@@ -2,7 +2,7 @@
  * Command registry for dynamic command discovery and loading
  */
 
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 import { readdir } from 'fs/promises';
 import type { SlashCommandModule } from '../../types/Command.js';
@@ -57,7 +57,8 @@ export async function discoverSlash(): Promise<any[]> {
   
   for (const file of commandFiles) {
     try {
-      const module = await import(file);
+      // Use file URL to support absolute Windows paths under ESM/tsx
+      const module = await import(pathToFileURL(file).href);
       const command = module.default as SlashCommandModule;
       
       if (command.data) {
@@ -82,7 +83,8 @@ export async function loadSlashMap(): Promise<Map<string, SlashCommandModule>> {
   
   for (const file of commandFiles) {
     try {
-      const module = await import(file);
+      // Use file URL to support absolute Windows paths under ESM/tsx
+      const module = await import(pathToFileURL(file).href);
       const command = module.default as SlashCommandModule;
       
       if (command.data && 'name' in command.data) {

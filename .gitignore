@@ -43,3 +43,4 @@ temp/
 
 # OS files
 Thumbs.db
+.env.render
