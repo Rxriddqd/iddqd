@@ -6,7 +6,6 @@ import type { ButtonInteraction, ModalSubmitInteraction } from 'discord.js';
 import { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
 import { logger } from '../../core/logger.js';
 import { isAdmin } from '../../interactions/middleware.js';
-import { isRedisAvailable } from '../../config/redis.js';
 import {
   createTournament,
   getTournament,
@@ -30,15 +29,6 @@ export async function handleTournamentButton(interaction: ButtonInteraction): Pr
   const { customId } = interaction;
   const parts = customId.split(':');
   const action = parts[1];
-  
-  // Check Redis availability
-  if (!isRedisAvailable()) {
-    await interaction.reply({
-      content: '❌ Tournament feature is unavailable. Redis is not connected.',
-      flags: 64,
-    });
-    return;
-  }
   
   try {
     switch (action) {

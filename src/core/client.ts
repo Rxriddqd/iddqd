@@ -60,17 +60,6 @@ export function buildClient(): Client {
     
     logger.info(`✅ Logged in as ${c.user.tag}`);
 
-    // Initialize Redis if URL is configured
-    if (env.REDIS_URL || env.REDIS_HOST) {
-      try {
-        const { initRedis } = await import('../config/redis.js');
-        await initRedis();
-        logger.info('✅ Redis initialized');
-      } catch (error) {
-        logger.warn({ error }, 'Redis initialization failed - tournament feature will be unavailable');
-      }
-    }
-
     // Initialize dashboard if configured
     if (env.DASHBOARD_CHANNEL_ID) {
       try {

@@ -18,6 +18,16 @@ const envSchema = z.object({
   // Optional database
   DATABASE_URL: z.string().optional(),
   
+  // Redis configuration
+  REDIS_HOST: z.string().default('localhost'),
+  REDIS_PORT: z.string().default('6379'),
+  REDIS_PASSWORD: z.string().optional(),
+  REDIS_TLS: z.string().transform(val => val === 'true').default('false'),
+  REDIS_ENABLED: z.string().transform(val => val === 'true').default('true'),
+  
+  // Persistent disk configuration
+  PERSISTENT_DISK_PATH: z.string().default('/data'),
+  
   // Optional Tier3 configuration
   TIER3_CHANNEL_ID: z.string().optional(),
   TIER3_MSG_CELL: z.string().optional(),
@@ -48,12 +58,6 @@ const envSchema = z.object({
   GOOGLE_PRIVATE_KEY: z.string().optional(),
   SHEET_CONFIG_ID: z.string().optional(),
   SHEET_IDDQD_ID: z.string().optional(),
-  
-  // Optional Redis configuration
-  REDIS_URL: z.string().optional(),
-  REDIS_HOST: z.string().default('localhost'),
-  REDIS_PORT: z.string().default('6379'),
-  REDIS_PASSWORD: z.string().optional(),
   
   // Optional Tournament configuration
   TOURNAMENT_CHANNEL_ID: z.string().optional(),

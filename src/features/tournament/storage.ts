@@ -2,7 +2,8 @@
  * Tournament data storage service using Redis
  */
 
-import { getRedisClient } from '../../config/redis.js';
+import { getRedisClient } from '../../core/redis.js';
+import type Redis from 'ioredis';
 import { logger } from '../../core/logger.js';
 import type {
   TournamentConfig,
@@ -17,10 +18,21 @@ const TOURNAMENT_ROUND_PREFIX = 'tournament:round:';
 const TOURNAMENT_STATS_PREFIX = 'tournament:stats:';
 
 /**
+ * Get Redis client or throw error if not available
+ */
+function requireRedisClient(): Redis {
+  const client = getRedisClient();
+  if (!client) {
+    throw new Error('Redis client not available');
+  }
+  return client;
+}
+
+/**
  * Save tournament configuration
  */
 export async function saveTournamentConfig(config: TournamentConfig): Promise<void> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_PREFIX}${config.id}`;
   
   try {
@@ -36,7 +48,7 @@ export async function saveTournamentConfig(config: TournamentConfig): Promise<vo
  * Get tournament configuration
  */
 export async function getTournamentConfig(tournamentId: string): Promise<TournamentConfig | null> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_PREFIX}${tournamentId}`;
   
   try {
@@ -54,7 +66,7 @@ export async function getTournamentConfig(tournamentId: string): Promise<Tournam
  * Delete tournament configuration
  */
 export async function deleteTournamentConfig(tournamentId: string): Promise<void> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_PREFIX}${tournamentId}`;
   
   try {
@@ -74,11 +86,11 @@ export async function saveUserRoll(
   userId: string,
   roll: UserRoll
 ): Promise<void> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_ROLLS_PREFIX}${tournamentId}`;
   
   try {
-    await client.hSet(key, userId, JSON.stringify(roll));
+    await client.hset(key, userId, JSON.stringify(roll));
     logger.info({ tournamentId, userId, roll: roll.roll }, 'User roll saved');
   } catch (error) {
     logger.error({ error, tournamentId, userId }, 'Failed to save user roll');
@@ -93,11 +105,11 @@ export async function getUserRoll(
   tournamentId: string,
   userId: string
 ): Promise<UserRoll | null> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_ROLLS_PREFIX}${tournamentId}`;
   
   try {
-    const data = await client.hGet(key, userId);
+    const data = await client.hget(key, userId);
     if (!data) return null;
     
     return JSON.parse(data) as UserRoll;
@@ -111,11 +123,11 @@ export async function getUserRoll(
  * Get all user rolls for a tournament
  */
 export async function getAllUserRolls(tournamentId: string): Promise<UserRoll[]> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_ROLLS_PREFIX}${tournamentId}`;
   
   try {
-    const data = await client.hGetAll(key);
+    const data = await client.hgetall(key);
     const rolls: UserRoll[] = [];
     
     for (const value of Object.values(data)) {
@@ -133,7 +145,7 @@ export async function getAllUserRolls(tournamentId: string): Promise<UserRoll[]>
  * Delete all user rolls for a tournament
  */
 export async function deleteAllUserRolls(tournamentId: string): Promise<void> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_ROLLS_PREFIX}${tournamentId}`;
   
   try {
@@ -153,7 +165,7 @@ export async function saveRoundData(
   roundNumber: number,
   round: RoundData
 ): Promise<void> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_ROUND_PREFIX}${tournamentId}:${roundNumber}`;
   
   try {
@@ -172,7 +184,7 @@ export async function getRoundData(
   tournamentId: string,
   roundNumber: number
 ): Promise<RoundData | null> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_ROUND_PREFIX}${tournamentId}:${roundNumber}`;
   
   try {
@@ -190,7 +202,7 @@ export async function getRoundData(
  * Get all round data for a tournament
  */
 export async function getAllRoundData(tournamentId: string): Promise<RoundData[]> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const pattern = `${TOURNAMENT_ROUND_PREFIX}${tournamentId}:*`;
   
   try {
@@ -218,7 +230,7 @@ export async function saveTournamentStats(
   tournamentId: string,
   stats: TournamentStats
 ): Promise<void> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_STATS_PREFIX}${tournamentId}`;
   
   try {
@@ -234,7 +246,7 @@ export async function saveTournamentStats(
  * Get tournament statistics
  */
 export async function getTournamentStats(tournamentId: string): Promise<TournamentStats | null> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const key = `${TOURNAMENT_STATS_PREFIX}${tournamentId}`;
   
   try {
@@ -252,7 +264,7 @@ export async function getTournamentStats(tournamentId: string): Promise<Tourname
  * List all active tournaments
  */
 export async function listActiveTournaments(): Promise<TournamentConfig[]> {
-  const client = getRedisClient();
+  const client = requireRedisClient();
   const pattern = `${TOURNAMENT_PREFIX}*`;
   
   try {
