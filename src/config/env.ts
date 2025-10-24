@@ -58,6 +58,9 @@ const envSchema = z.object({
   GOOGLE_PRIVATE_KEY: z.string().optional(),
   SHEET_CONFIG_ID: z.string().optional(),
   SHEET_IDDQD_ID: z.string().optional(),
+  
+  // Optional Tournament configuration
+  TOURNAMENT_CHANNEL_ID: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

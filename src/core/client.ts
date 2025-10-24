@@ -83,6 +83,10 @@ export function buildClient(): Client {
     if (env.FLASKGAMBA_CHANNEL_ID) {
       logger.info('ℹ️  FlaskGamba configuration detected');
     }
+    
+    if (env.TOURNAMENT_CHANNEL_ID) {
+      logger.info('ℹ️  Tournament configuration detected');
+    }
 
     logger.info('🚀 Bot is ready!');
   });
