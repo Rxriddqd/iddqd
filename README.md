@@ -25,8 +25,8 @@ A production-ready Discord bot built with **Discord.js v14**, **TypeScript stric
 - **npm** or **yarn**
 - **Discord Bot Token** (from [Discord Developer Portal](https://discord.com/developers/applications))
 - **Discord Client ID**
-- **Redis** (optional but recommended, for Tournament mode and short-term data storage)
-- **Google Service Account** (optional, for Sheets integration)
+- **Redis** (optional but recommended, for short-term data storage)
+- **Google Service Account** (optional, for Sheets data export)
 
 ## 🚀 Quick Start
 
