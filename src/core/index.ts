@@ -6,6 +6,8 @@
 
 export { logger } from './logger.js';
 export { buildClient } from './client.js';
+export * from './redis.js';
+export * from './disk.js';
 
 import type { TextChannel } from 'discord.js';
 import type { V2MessagePayload } from '../../types/Componentsv2.js';
