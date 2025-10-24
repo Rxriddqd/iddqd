@@ -7,6 +7,7 @@ import type {
   ChatInputCommandInteraction,
   AutocompleteInteraction,
   ButtonInteraction,
+  ModalSubmitInteraction,
 } from 'discord.js';
 import { loadSlashMap } from './commandRegistry.js';
 import { logger } from '../core/logger.js';
@@ -160,7 +161,46 @@ async function handleButton(interaction: ButtonInteraction) {
     return;
   }
   
+  // Tournament interactions
+  if (customId.startsWith('tournament:')) {
+    try {
+      const { handleTournamentButton } = await import('../features/tournament/handlers.js');
+      await handleTournamentButton(interaction);
+    } catch (error) {
+      logger.error({ error, customId }, 'Failed to handle tournament button');
+      await interaction.reply({
+        content: '❌ An error occurred. Please try again.',
+        flags: 64,
+      });
+    }
+    return;
+  }
+  
   logger.warn({ customId }, 'Unhandled button interaction');
+}
+
+/**
+ * Handle modal submit interactions
+ */
+async function handleModalSubmit(interaction: ModalSubmitInteraction) {
+  const { customId } = interaction;
+  
+  // Tournament modal
+  if (customId === 'tournament:create:modal') {
+    try {
+      const { handleTournamentModalSubmit } = await import('../features/tournament/handlers.js');
+      await handleTournamentModalSubmit(interaction);
+    } catch (error) {
+      logger.error({ error, customId }, 'Failed to handle tournament modal');
+      await interaction.reply({
+        content: '❌ An error occurred. Please try again.',
+        flags: 64,
+      });
+    }
+    return;
+  }
+  
+  logger.warn({ customId }, 'Unhandled modal submit interaction');
 }
 
 /**
@@ -179,6 +219,8 @@ export async function onInteraction(interaction: Interaction) {
       await handleAutocomplete(interaction);
     } else if (interaction.isButton()) {
       await handleButton(interaction);
+    } else if (interaction.isModalSubmit()) {
+      await handleModalSubmit(interaction);
     }
   } catch (error) {
     logger.error({ error }, 'Interaction handler error');
