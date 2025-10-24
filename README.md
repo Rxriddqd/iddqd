@@ -278,6 +278,7 @@ The compiled JavaScript will be in the `dist/` directory.
 - **[IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Implementation details and changes
 - **[ARCHITECTURE_DIAGRAM.md](docs/ARCHITECTURE_DIAGRAM.md)** - System architecture diagrams
 - **[RENDER_DEPLOYMENT.md](docs/RENDER_DEPLOYMENT.md)** - Complete guide for deploying to Render with Redis and Persistent Disk
+- **[STORAGE_MIGRATION.md](docs/STORAGE_MIGRATION.md)** - Guide for migrating from Google Sheets to Redis/Disk storage
 
 ## 🔄 CI/CD
 
