@@ -10,10 +10,13 @@ A production-ready Discord bot built with **Discord.js v14**, **TypeScript stric
 - **📊 Admin Dashboard** - Interactive dashboard with category navigation
 - **🎮 Mini-Games** - FlaskGamba and other interactive games
 - **📋 Role & Summon Panels** - Dynamic role assignment and notifications
-- **📊 Google Sheets Integration** - Sync data with Google Sheets
+- **💾 Redis Integration** - Fast short-term data storage with automatic fallback
+- **📁 Persistent Disk** - Long-term storage for logs, backups, and historical data
+- **📊 Google Sheets Integration** - Optional data export to Google Sheets
 - **🧪 Testing** - Vitest for unit and integration tests
 - **🔄 CI/CD** - Automated testing, linting, and deployment
 - **📝 Comprehensive Logging** - Structured logging with Pino
+- **☁️ Render Ready** - Optimized for deployment on Render with Redis and disk support
 
 ## 📋 Prerequisites
 
@@ -21,7 +24,8 @@ A production-ready Discord bot built with **Discord.js v14**, **TypeScript stric
 - **npm** or **yarn**
 - **Discord Bot Token** (from [Discord Developer Portal](https://discord.com/developers/applications))
 - **Discord Client ID**
-- **Google Service Account** (optional, for Sheets integration)
+- **Redis** (optional but recommended, for short-term data storage)
+- **Google Service Account** (optional, for Sheets data export)
 
 ## 🚀 Quick Start
 
@@ -56,6 +60,16 @@ DISCORD_CLIENT_ID=your_client_id_here
 ```env
 DISCORD_GUILD_ID=your_guild_id_here
 DASHBOARD_CHANNEL_ID=channel_id_for_admin_dashboard
+
+# Redis configuration (recommended for production)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your_redis_password
+REDIS_ENABLED=true
+
+# Persistent disk path (for long-term storage)
+PERSISTENT_DISK_PATH=/data
+
 # ... see .env.example for all options
 ```
 
@@ -263,6 +277,8 @@ The compiled JavaScript will be in the `dist/` directory.
 - **[v2components.md](docs/v2components.md)** - Components V2 reference guide
 - **[IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Implementation details and changes
 - **[ARCHITECTURE_DIAGRAM.md](docs/ARCHITECTURE_DIAGRAM.md)** - System architecture diagrams
+- **[RENDER_DEPLOYMENT.md](docs/RENDER_DEPLOYMENT.md)** - Complete guide for deploying to Render with Redis and Persistent Disk
+- **[STORAGE_MIGRATION.md](docs/STORAGE_MIGRATION.md)** - Guide for migrating from Google Sheets to Redis/Disk storage
 
 ## 🔄 CI/CD
 
@@ -376,11 +392,34 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 Here are some additional features and improvements you might want to consider:
 
+### Data Storage
+
+The bot now uses a multi-tier storage approach:
+
+1. **Redis** (Short-term storage)
+   - Game state during active sessions
+   - User session data
+   - Frequently accessed cache data
+   - Automatic TTL and expiration
+
+2. **Persistent Disk** (Long-term storage)
+   - Event logs with daily rotation
+   - Automated backups
+   - Historical data
+   - Fallback when Redis is unavailable
+
+3. **Google Sheets** (Optional export only)
+   - Data export and reporting
+   - No longer required for primary storage
+   - Configure only if you need sheet integration
+
+See [RENDER_DEPLOYMENT.md](docs/RENDER_DEPLOYMENT.md) for deployment instructions.
+
 ### Suggested Features
 
-1. **Database Integration**
-   - Add PostgreSQL or MongoDB for persistent data storage
-   - Store user preferences, game scores, and logs
+1. **Enhanced Database Integration**
+   - Add PostgreSQL for relational data
+   - Integrate with existing Redis/disk storage
    - Example: Prisma ORM integration
 
 2. **Advanced Commands**

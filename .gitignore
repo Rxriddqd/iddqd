@@ -41,6 +41,10 @@ tmp/
 temp/
 *.tmp
 
+# Local data directory (for development)
+data/
+/data
+
 # OS files
 Thumbs.db
 .env.render

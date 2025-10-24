@@ -1,5 +1,8 @@
 /**
- * Google Sheets integration utilities
+ * Google Sheets integration utilities (OPTIONAL - For Export Only)
+ * 
+ * Note: Google Sheets is now optional and used only for data export.
+ * Primary data storage uses Redis (short-term) and Persistent Disk (long-term).
  * 
  * Provides helper functions for interacting with Google Sheets API
  */
