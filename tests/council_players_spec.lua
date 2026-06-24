@@ -40,5 +40,8 @@ local function check(c, m) if c then pass = pass + 1 else fail = fail + 1; print
 check(Council:CandidateIndexFor(1, " Target-OtherRealm ") == 2, "CandidateIndexFor normalizes short display names")
 check(Council:GroupMemberPresent("target") == true, "GroupMemberPresent normalizes roster names")
 
+Council:OnAddonMessage("IDDQDCOUNCIL2", "1|SYNC|selfstream|3|Sylo|Loot assignments", "GUILD", "Sylo-SpineShatter")
+check(Council.activeIncomingSyncId == nil and Council.incoming == nil, "Council ignores self-sent sync when sender is full realm name")
+
 print(("council_players_spec: %d passed, %d failed"):format(pass, fail))
 os.exit(fail == 0 and 0 or 1)

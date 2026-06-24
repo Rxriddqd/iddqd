@@ -54,6 +54,12 @@ local function playerName()
     return name and shortPlayerName(name) or "Unknown"
 end
 
+local function samePlayer(a, b)
+    local players = Players()
+    if players and players.Same then return players:Same(a, b) end
+    return lower(shortPlayerName(a)) == lower(shortPlayerName(b))
+end
+
 local function lower(value)
     return string.lower(tostring(value or ""))
 end
@@ -792,7 +798,7 @@ function Council:TryFinishIncoming(syncId)
 end
 
 function Council:OnAddonMessage(prefix, message, channel, sender)
-    if prefix ~= COMM_PREFIX or lower(sender) == lower(playerName()) then return end
+    if prefix ~= COMM_PREFIX or samePlayer(sender, playerName()) then return end
     self:CleanupIncoming()
     local parts = splitPipe(message)
     if numberOrNil(parts[1]) ~= PROTOCOL_VERSION then return end

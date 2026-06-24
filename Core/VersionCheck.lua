@@ -207,6 +207,14 @@ end
 
 local CHANGELOG_VERSIONS = {
     {
+        version = "1.2.33",
+        summary = "Loot Council self-sync hotfix",
+        details = {
+            "Fixed Loot Council assignment sync accepting the local player's own guild addon messages when the sender included a realm name.",
+            "Prevented the Council tab from getting stuck on a partial incoming assignment stream from yourself.",
+        },
+    },
+    {
         version = "1.2.32",
         summary = "Version detection hotfix",
         details = {

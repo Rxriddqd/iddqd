@@ -1,5 +1,11 @@
 # iddqd Changelog
 
+## 1.2.33
+
+### Hotfix
+- Fixed Loot Council assignment sync accepting the local player's own guild addon messages when the sender included a realm name.
+- Prevented the Council tab from getting stuck on a partial incoming assignment stream from yourself.
+
 ## 1.2.32
 
 ### Hotfix
