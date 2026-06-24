@@ -1,0 +1,38 @@
+# Local editor and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+Desktop.ini
+
+# WoW runtime/user data
+WTF/
+Cache/
+Errors/
+Logs/
+Screenshots/
+
+# Release/package artifacts
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+release/
+releases/
+dist/
+build/
+
+# Test/tool caches
+.luacov
+luacov.*
+coverage/
+.pytest_cache/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.orig

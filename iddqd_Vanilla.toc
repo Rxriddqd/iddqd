@@ -1,0 +1,12 @@
+## Interface: 11507
+## Title: iddqd
+## IconTexture: Interface\AddOns\iddqd\Media\icon
+## Notes: Loot council, raid tools, and guild utilities for iddqdapp.com
+## Author: iddqdapp.com
+## Version: 1.2.4
+## SavedVariables: iddqdDB
+## OptionalDeps: iddqd_app, iddqd_app_dev
+## X-Website: https://iddqdapp.com
+## X-Category: Raid
+
+Includes.xml
