@@ -207,6 +207,14 @@ end
 
 local CHANGELOG_VERSIONS = {
     {
+        version = "1.2.32",
+        summary = "Version detection hotfix",
+        details = {
+            "Re-released the 1.2.4 changes as 1.2.32 so clients on the previous 1.2.31 hotfix correctly detect this build as newer.",
+            "No gameplay changes from 1.2.4.",
+        },
+    },
+    {
         version = "1.2.4",
         summary = "Loot History lifecycle fixes and Mount Hyjal auto-marking data",
         details = {

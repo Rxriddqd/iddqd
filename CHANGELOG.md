@@ -1,5 +1,11 @@
 # iddqd Changelog
 
+## 1.2.32
+
+### Hotfix
+- Re-released the 1.2.4 changes as 1.2.32 so clients on the previous 1.2.31 hotfix correctly detect this build as newer.
+- No gameplay changes from 1.2.4.
+
 ## 1.2.4
 
 ### Loot History
