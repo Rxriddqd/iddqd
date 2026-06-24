@@ -78,7 +78,9 @@ function Sync:SerializeSessionDrops(sessionID)
         if drop.sessionID == sessionID then
             local evs = {}
             for _, e in pairs(drop.events or {}) do
-                evs[#evs + 1] = table.concat({ clean(e.type), clean(e.actor), clean(e.target), tostring(tonumber(e.at) or 0), tostring(tonumber(e.remaining) or "") }, ":")
+                if e.type ~= "bop_finalized" then
+                    evs[#evs + 1] = table.concat({ clean(e.type), clean(e.actor), clean(e.target), tostring(tonumber(e.at) or 0), tostring(tonumber(e.remaining) or "") }, ":")
+                end
             end
             table.sort(evs)
             -- Field order: dropID ~ itemId ~ itemName ~ quality ~ events ~ bossName.
@@ -120,7 +122,7 @@ function Sync:ApplySessionPayload(sessionID, payload)
                 for x in (evSeg .. ":"):gmatch("([^:]*):") do p[#p + 1] = x end
                 local ev = { type = p[1], actor = (p[2] ~= "" and p[2] or nil), target = (p[3] ~= "" and p[3] or nil), at = tonumber(p[4]) or 0 }
                 if p[5] and p[5] ~= "" then ev.remaining = tonumber(p[5]) end
-                if ev.type and ev.type ~= "" then store:AddEvent(dropID, ev) end
+                if ev.type and ev.type ~= "" and ev.type ~= "bop_finalized" then store:AddEvent(dropID, ev) end
             end
         end
         end

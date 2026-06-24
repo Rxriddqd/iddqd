@@ -138,42 +138,13 @@ end
 local function tradeTimeRemaining(bag, slot)
     if C_Container and C_Container.GetContainerItemTradeTimeRemaining then
         local ok, secs = pcall(C_Container.GetContainerItemTradeTimeRemaining, bag, slot)
-        if ok then return tonumber(secs) or 0 end
+        if ok and secs ~= nil then return tonumber(secs) or 0 end
     end
     if GetContainerItemTradeTimeRemaining then
         local ok, secs = pcall(GetContainerItemTradeTimeRemaining, bag, slot)
-        if ok then return tonumber(secs) or 0 end
+        if ok and secs ~= nil then return tonumber(secs) or 0 end
     end
-    return 0
-end
-
--- Tooltip scanner to read per-instance bind state from a bag slot. A looted item that is
--- soulbound (BoP, now bound to us) with no trade window has reached the end of its tradeable
--- life -> finalize it. Returns true if the bag slot's item shows a soulbound/BoP line.
-local function isSoulbound(bag, slot)
-    if not CreateFrame or not bag or not slot then return false end
-    local tip = _G.IDDQDLootBindScanTooltip
-    if not tip then
-        tip = CreateFrame("GameTooltip", "IDDQDLootBindScanTooltip", UIParent, "GameTooltipTemplate")
-    end
-    tip:SetOwner(UIParent, "ANCHOR_NONE")
-    tip:ClearLines()
-    local ok = pcall(function() tip:SetBagItem(bag, slot) end)
-    if not ok then return false end
-    local soulbound = (_G.ITEM_SOULBOUND or "Soulbound"):lower()
-    local bop = (_G.ITEM_BIND_ON_PICKUP or "Binds when picked up"):lower()
-    for i = 1, tip:NumLines() do
-        local line = _G["IDDQDLootBindScanTooltipTextLeft" .. i]
-        local text = line and line:GetText()
-        if text then
-            local l = text:lower()
-            if l:find(soulbound, 1, true) then return true end
-            -- "Binds when picked up" alone isn't proof it's bound yet, but for a looted item
-            -- sitting in our bags with no trade window it effectively is — treat as bound.
-            if l:find(bop, 1, true) then return true end
-        end
-    end
-    return false
+    return nil
 end
 
 local function itemInfoFor(linkOrId)
@@ -1282,8 +1253,12 @@ function Tracker:AuditBags()
         return
     end
 
-    -- Trade-window detection (+ BoP-finalize) per tracked drop still held in our bags.
-    self.windowState = self.windowState or {}   -- [dropID] = true if window was open
+    -- Trade-window detection per tracked drop still held in our bags. A BoP tooltip line alone
+    -- is not enough to finalize: raid loot can say "Binds when picked up" while its 2-hour
+    -- trade timer is still active, and the timer API can briefly return 0/unknown while cache
+    -- settles. Only finalize after this client has positively observed a timer > 0 and then
+    -- later sees it reach 0.
+    self.windowState = self.windowState or {}   -- [dropID] = true after a local positive timer
     local usedBagGuids = {}
     for dropID, drop in pairs(store:Drops()) do
         if drop.sessionID == self.activeSessionID and drop.itemId then
@@ -1309,11 +1284,10 @@ function Tracker:AuditBags()
                 if anchorRow and anchorRow.itemGuid and not drop.itemGUID then
                     drop.itemGUID = anchorRow.itemGuid
                 end
-                local secs, boundRow = 0, nil
+                local secs
                 for _, row in ipairs(rows) do
                     local t = tradeTimeRemaining(row.bag, row.slot)
-                    if t and t > secs then secs = t end
-                    boundRow = boundRow or row
+                    if t and (not secs or t > secs) then secs = t end
                 end
                 -- Holding the item in our bags is authoritative proof WE are the holder. If the
                 -- looted event never landed (chat-parse miss / auto-loot), self-attribute now so
@@ -1330,22 +1304,12 @@ function Tracker:AuditBags()
                         notifyLocalChange(self.activeSessionID)
                     end
                     self.windowState[dropID] = true
-                elseif self.windowState[dropID] then
+                elseif secs == 0 and self.windowState[dropID] then
                     -- Previously had a window, now reads 0 while still owned -> expired.
                     if store:AddEvent(dropID, { type = "window_expired", actor = me, at = now() }) then
                         notifyLocalChange(self.activeSessionID)
                     end
                     self.windowState[dropID] = nil
-                else
-                    -- No trade window observed. If the item is BoP (soulbound to us), its
-                    -- tradeable life is over -> finalize. BoE items stay 'obtained' (still
-                    -- tradeable/sellable). ComputeState's terminal precedence lets a later
-                    -- disenchant/vendor/delete override this finalize.
-                    if st.status == "obtained" and boundRow and isSoulbound(boundRow.bag, boundRow.slot) then
-                        if store:AddEvent(dropID, { type = "bop_finalized", actor = me, at = now() }) then
-                            notifyLocalChange(self.activeSessionID)
-                        end
-                    end
                 end
             end
         end

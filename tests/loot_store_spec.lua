@@ -80,31 +80,46 @@ check(st3.tradeWindow and st3.tradeWindow > 0, "trade_window -> remaining > 0")
 Store:AddEvent("C3", { type="window_expired", actor="Y-Realm", at=9999 })
 check(Store:ComputeState(Store:Drops()["C3"]).status == "finalized", "window_expired -> finalized")
 
--- bop_finalized: a BoP item with no trade window is finalized on loot, holder retained.
-freshDrop("BF1"); Store:AddEvent("BF1", { type="looted", actor="Z-Realm", at=10 }); Store:AddEvent("BF1", { type="bop_finalized", actor="Z-Realm", at=10 })
+-- bop_finalized was retired after it proved unsafe: BoP raid loot can still have an active
+-- trade window while showing "Binds when picked up".
+freshDrop("BF1"); Store:AddEvent("BF1", { type="looted", actor="Z-Realm", at=10 })
+local acceptedBop = Store:AddEvent("BF1", { type="bop_finalized", actor="Z-Realm", at=10 })
 local bf = Store:ComputeState(Store:Drops()["BF1"])
-check(bf.status == "finalized" and bf.currentHolder == "Z-Realm", "bop_finalized -> finalized, holder retained")
+check(acceptedBop == false and bf.status == "obtained" and bf.currentHolder == "Z-Realm", "bop_finalized is rejected and does not finalize")
+
+local ledger = Store:Get()
+ledger.bopFinalizeCleanupVersion = 0
+ledger.drops["LEGACY-BOP"] = {
+    dropID = "LEGACY-BOP",
+    itemId = 999,
+    events = {
+        legacyLoot = { type = "looted", actor = "Z-Realm", at = 10 },
+        legacyBop = { type = "bop_finalized", actor = "Z-Realm", at = 20 },
+    },
+}
+Store:Get()
+check(ledger.drops["LEGACY-BOP"].events.legacyBop == nil, "legacy bop_finalized events are cleaned from saved history")
 
 -- recipe_learned: a learned recipe is a real finalizing ownership event.
 freshDrop("RL1"); Store:AddEvent("RL1", { type="looted", actor="Crafter-Realm", at=10 }); Store:AddEvent("RL1", { type="recipe_learned", actor="Crafter-Realm", at=20 })
 local rl = Store:ComputeState(Store:Drops()["RL1"])
 check(rl.status == "finalized" and rl.currentHolder == "Crafter-Realm", "recipe_learned -> finalized, holder retained")
 
--- vendored: terminal, clears finalOwner; OUTRANKS a prior bop_finalized.
-freshDrop("VN1"); Store:AddEvent("VN1", { type="looted", actor="Z-Realm", at=10 }); Store:AddEvent("VN1", { type="bop_finalized", actor="Z-Realm", at=10 })
+-- vendored: terminal, clears finalOwner.
+freshDrop("VN1"); Store:AddEvent("VN1", { type="looted", actor="Z-Realm", at=10 })
 Store:AddEvent("VN1", { type="vendored", actor="Z-Realm", at=20 })
 local vn = Store:ComputeState(Store:Drops()["VN1"])
-check(vn.status == "vendored" and vn.finalOwner == nil, "vendored -> vendored status, finalOwner cleared, outranks bop_finalized")
+check(vn.status == "vendored" and vn.finalOwner == nil, "vendored -> vendored status, finalOwner cleared")
 
--- disenchant outranks bop_finalized too (DE after a no-window BoP item).
-freshDrop("DB1"); Store:AddEvent("DB1", { type="looted", actor="Z-Realm", at=10 }); Store:AddEvent("DB1", { type="bop_finalized", actor="Z-Realm", at=10 })
+-- disenchant is terminal.
+freshDrop("DB1"); Store:AddEvent("DB1", { type="looted", actor="Z-Realm", at=10 })
 Store:AddEvent("DB1", { type="disenchanted", actor="Z-Realm", at=20 })
-check(Store:ComputeState(Store:Drops()["DB1"]).status == "disenchanted", "disenchant outranks bop_finalized")
+check(Store:ComputeState(Store:Drops()["DB1"]).status == "disenchanted", "disenchant -> disenchanted status")
 
--- delete a FINALIZED item: deleted (rank 5) must override bop_finalized (rank 3).
-freshDrop("DF1"); Store:AddEvent("DF1", { type="looted", actor="Z-Realm", at=10 }); Store:AddEvent("DF1", { type="bop_finalized", actor="Z-Realm", at=10 })
+-- delete is terminal.
+freshDrop("DF1"); Store:AddEvent("DF1", { type="looted", actor="Z-Realm", at=10 })
 Store:AddEvent("DF1", { type="deleted", actor="Z-Realm", at=30 })
-check(Store:ComputeState(Store:Drops()["DF1"]).status == "deleted", "delete outranks bop_finalized (finalized item still deletable)")
+check(Store:ComputeState(Store:Drops()["DF1"]).status == "deleted", "delete -> deleted status")
 
 freshDrop("C4")
 Store:AddEvent("C4", { type="traded", actor="A-Realm", target="B-Realm", at=20 })

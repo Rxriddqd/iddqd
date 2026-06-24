@@ -6,6 +6,7 @@ local Store = ns:NewModule("LootStore")
 -- slot-based dropIDs / un-normalized names.
 local PROTOCOL_VERSION = 2
 local LIFECYCLE_ACTIVITY_WINDOW = 72 * 60 * 60
+local BOP_FINALIZED_CLEANUP_VERSION = 1
 
 local function now() return (time and time()) or os.time() end
 
@@ -24,6 +25,19 @@ function Store:Get()
     r.sessions = r.sessions or {}
     r.hiddenSessions = r.hiddenSessions or {}
     r.settings = r.settings or { guildRaidThreshold = 0.60 }
+    if (tonumber(r.bopFinalizeCleanupVersion or 0) or 0) < BOP_FINALIZED_CLEANUP_VERSION then
+        local removed = 0
+        for _, drop in pairs(r.drops or {}) do
+            for key, ev in pairs(drop.events or {}) do
+                if ev and ev.type == "bop_finalized" then
+                    drop.events[key] = nil
+                    removed = removed + 1
+                end
+            end
+        end
+        r.bopFinalizeCleanupVersion = BOP_FINALIZED_CLEANUP_VERSION
+        if removed > 0 then ns:Debug("LootStore removed unsafe bop_finalized events", tostring(removed)) end
+    end
     return r
 end
 
@@ -125,6 +139,7 @@ end
 function Store:AddEvent(dropID, ev)
     local drop = self:Drops()[dropID]
     if not drop or type(ev) ~= "table" or not ev.type then return false end
+    if ev.type == "bop_finalized" then return false end
     if not self:ShouldAcceptEvent(drop, ev) then return false end
     drop.events = drop.events or {}
     local key = self:EventKey(ev)

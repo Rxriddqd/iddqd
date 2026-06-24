@@ -250,6 +250,56 @@ C_Container = {
     GetContainerItemInfo = function(_, slot) return bagItems[slot] end,
 }
 
+-- BoP tooltip/bind state must not finalize raid loot before a positive trade timer was
+-- observed. The timer API can briefly return 0/nil while loot cache settles, and raid epics
+-- still show "Binds when picked up" while the 2-hour trade window is active.
+for k in pairs(Store:Drops()) do Store:Drops()[k] = nil end
+Store:EnsureDrop("SSC:BOPWINDOW", { sessionID = "SSC", itemId = 88888, itemName = "Tradeable Raid Epic", itemGUID = "BOPGUID" })
+Store:AddEvent("SSC:BOPWINDOW", { type = "looted", actor = "Dedajbt", at = 1 })
+Tracker.activeSessionID = "SSC"
+Tracker.windowState = {}
+Tracker.lastBagSnapshot = nil
+function UnitName(unit) return unit == "player" and "Dedajbt" or nil end
+bagItems = { [0] = { [1] = { itemID = 88888, hyperlink = "|cffa335ee|Hitem:88888::::::::|h[Tradeable Raid Epic]|h|r", guid = "BOPGUID" } } }
+ItemLocation = { CreateFromBagAndSlot = function(_, bag, slot) return { bag = bag, slot = slot } end }
+C_Item = {
+    DoesItemExist = function(loc) return loc and bagItems[loc.bag] and bagItems[loc.bag][loc.slot] ~= nil end,
+    GetItemGUID = function(loc)
+        local row = loc and bagItems[loc.bag] and bagItems[loc.bag][loc.slot]
+        return row and row.guid or nil
+    end,
+}
+local tradeTimer = 0
+C_Container = {
+    GetContainerNumSlots = function(bag) return bagItems[bag] and #bagItems[bag] or 0 end,
+    GetContainerItemInfo = function(bag, slot) return bagItems[bag] and bagItems[bag][slot] end,
+    GetContainerItemTradeTimeRemaining = function() return tradeTimer end,
+}
+Tracker:AuditBags()
+local prematureState = Store:ComputeState(Store:Drops()["SSC:BOPWINDOW"])
+check(prematureState.status == "obtained", "BoP raid item with no observed positive trade timer is not finalized on 0 seconds")
+tradeTimer = 7200
+testNow = testNow + 1
+Tracker:AuditBags()
+local windowState = Store:ComputeState(Store:Drops()["SSC:BOPWINDOW"])
+check(windowState.status == "obtained" and windowState.tradeWindow == 7200, "positive trade timer records trade window without finalizing")
+tradeTimer = nil
+testNow = testNow + 1
+Tracker:AuditBags()
+local unknownTimerState = Store:ComputeState(Store:Drops()["SSC:BOPWINDOW"])
+check(unknownTimerState.status == "obtained", "unknown trade timer after positive observation does not expire the window")
+tradeTimer = 0
+testNow = testNow + 1
+Tracker:AuditBags()
+local expiredState = Store:ComputeState(Store:Drops()["SSC:BOPWINDOW"])
+check(expiredState.status == "finalized", "explicit 0 after observed positive timer finalizes as window expired")
+C_Item = nil
+ItemLocation = nil
+C_Container = {
+    GetContainerNumSlots = function() return #bagItems end,
+    GetContainerItemInfo = function(_, slot) return bagItems[slot] end,
+}
+
 -- If a client cannot resolve GUIDs, a traded item is still removable when the local player is
 -- the current holder. The same fallback must not match items already traded away.
 for k in pairs(Store:Drops()) do Store:Drops()[k] = nil end

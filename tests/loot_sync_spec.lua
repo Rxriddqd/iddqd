@@ -55,6 +55,10 @@ check(man.msg:find("PS1:", 1, true) == nil, "manifest excludes personal session 
 -- Receiving a serialized drop+event for a GUILD session merges via event-union (idempotent)
 local serialized = Sync:SerializeSessionDrops("GS1")
 check(type(serialized) == "string" and #serialized > 0, "SerializeSessionDrops returns a payload")
+Store:Drops()["GD1"].events.legacyBop = { type = "bop_finalized", actor = "A-Realm", at = 12 }
+local serializedWithoutBop = Sync:SerializeSessionDrops("GS1")
+check(serializedWithoutBop:find("bop_finalized", 1, true) == nil, "SerializeSessionDrops omits retired bop_finalized events")
+Store:Drops()["GD1"].events.legacyBop = nil
 Store:Drops()["GD1"] = nil
 Sync:ApplySessionPayload("GS1", serialized)
 check(Store:Drops()["GD1"] ~= nil, "ApplySessionPayload recreates the drop")
@@ -63,6 +67,15 @@ local before = 0; for _ in pairs(Store:Drops()["GD1"].events) do before = before
 Sync:ApplySessionPayload("GS1", serialized)
 local after = 0; for _ in pairs(Store:Drops()["GD1"].events) do after = after + 1 end
 check(before == after, "re-applying the same payload is idempotent (no duplicate events)")
+
+local unsafePayload = "__META~777~Serpentshrine Cavern~raid~548~14|UNSAFE~101~Unsafe Item~4~looted:A-Realm::10:,bop_finalized:A-Realm::15:~Boss"
+Sync:ApplySessionPayload("GS1", unsafePayload)
+local unsafe = Store:Drops()["UNSAFE"]
+local hasUnsafeBop = false
+for _, ev in pairs((unsafe and unsafe.events) or {}) do
+    if ev.type == "bop_finalized" then hasUnsafeBop = true end
+end
+check(unsafe ~= nil and hasUnsafeBop == false, "ApplySessionPayload ignores retired bop_finalized events")
 
 -- personal isolation: ApplySessionPayload for a session we consider personal is rejected
 Store:Sessions()["PS2"] = { sessionID="PS2", scope="personal" }

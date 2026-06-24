@@ -1,5 +1,13 @@
 # iddqd Changelog
 
+## 1.2.35
+
+### Hotfix
+- Fixed raid loot being finalized immediately when an epic item showed **Binds when picked up** while still having a trade window.
+- Trade-window finalization now requires a positive trade timer to be observed first, followed by an explicit `0` second timer later.
+- Unknown or temporarily unavailable trade timer data no longer counts as an expired trade window.
+- Removed unsafe legacy `bop_finalized` events from saved loot history and blocked them from guild sync so old false finals do not come back.
+
 ## 1.2.34
 
 ### Hotfix
