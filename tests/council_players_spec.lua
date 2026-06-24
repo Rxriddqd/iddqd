@@ -43,5 +43,25 @@ check(Council:GroupMemberPresent("target") == true, "GroupMemberPresent normaliz
 Council:OnAddonMessage("IDDQDCOUNCIL2", "1|SYNC|selfstream|3|Sylo|Loot assignments", "GUILD", "Sylo-SpineShatter")
 check(Council.activeIncomingSyncId == nil and Council.incoming == nil, "Council ignores self-sent sync when sender is full realm name")
 
+local targeted = 0
+function TargetUnit() targeted = targeted + 1 end
+ns.modules.DB = {
+    db = {
+        settings = { lootSettings = { autoTradeEnabled = true } },
+        council = {
+            active = {
+                assignments = {
+                    { character = "Target", itemId = 9001, lootItemId = 9001 },
+                },
+            },
+            history = {},
+            received = {},
+            settings = {},
+        },
+    },
+}
+Council:OnSelfReceivedItem(9001, "|cff1eff00|Hitem:9001::::::::|h[Test Item]|h|r")
+check(targeted == 0, "Council auto-trade reminder does not call protected TargetUnit")
+
 print(("council_players_spec: %d passed, %d failed"):format(pass, fail))
 os.exit(fail == 0 and 0 or 1)

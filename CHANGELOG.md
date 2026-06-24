@@ -1,5 +1,12 @@
 # iddqd Changelog
 
+## 1.2.34
+
+### Hotfix
+- Removed protected automatic targeting/trade actions from Loot Council assignment reminders.
+- Removed protected automatic trade-opening and item-placement calls from Loot Distribution awards.
+- Loot assignment trade helpers now print safe reminders instead of asking Blizzard's secure UI to target, open trade, or move bag items automatically.
+
 ## 1.2.33
 
 ### Hotfix

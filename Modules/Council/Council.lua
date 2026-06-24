@@ -1454,10 +1454,6 @@ function Council:OnSelfReceivedItem(itemId, link)
         local short = target and lower(shortPlayerName(target))
         if short and short ~= me and self:GroupMemberPresent(short) then
             ns:Print(("Trade %s to %s (council assignment)."):format(link or ("item " .. itemId), target), "success")
-            -- Soft-target the assignee so the trade is one click away (only out of combat).
-            if TargetUnit and not (InCombatLockdown and InCombatLockdown()) then
-                pcall(TargetUnit, target)
-            end
             return
         end
     end

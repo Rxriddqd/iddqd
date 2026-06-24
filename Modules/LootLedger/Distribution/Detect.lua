@@ -1,6 +1,6 @@
 local ADDON, ns = ...
--- LootDistDetect (IO): officer-received detection, auto-add, trade auto-open/auto-place,
--- traded flip, and reminders. Every WoW global is guarded so the file loads (and no-ops)
+-- LootDistDetect (IO): officer-received detection, auto-add, trade completion,
+-- and reminders. Every WoW global is guarded so the file loads (and no-ops)
 -- on any client (TBC + Era). Trade-window APIs return 0 on Era (no error).
 local Detect = ns:NewModule("LootDistDetect")
 
@@ -83,15 +83,6 @@ local function tradeTimeRemaining(bag, slot)
         if ok then return tonumber(secs) or 0 end
     end
     return 0
-end
-
--- Place an item into the OPEN trade window (Gargul's proven mechanic).
-local function useContainerItem(bag, slot)
-    if C_Container and C_Container.UseContainerItem then
-        pcall(C_Container.UseContainerItem, bag, slot)
-    elseif UseContainerItem then
-        pcall(UseContainerItem, bag, slot)
-    end
 end
 
 -- Read the current trade frame recipient name (canon).
@@ -524,9 +515,7 @@ function Detect:Award(id, winner)
         id = id, itemId = e.itemId, itemLink = e.itemLink,
     }
 
-    -- Attempt to auto-open the trade (Gargul calls InitiateTrade directly; out-of-range
-    -- just no-ops).
-    if InitiateTrade then pcall(InitiateTrade, winner) end
+    ns:Print(("Trade %s to %s when ready."):format(e.itemLink or e.itemName or "item", winner), "success")
     refreshPanel()
 end
 
@@ -547,11 +536,7 @@ end
 function Detect:PlacePending(key)
     local pending = self.outstanding and self.outstanding[key]
     if not pending then return end
-    -- Only place while a trade frame is open (if TradeFrame absent, just attempt).
-    if _G and _G.TradeFrame and _G.TradeFrame.IsShown and not _G.TradeFrame:IsShown() then return end
-    -- We don't persist the awarded item's GUID; match by itemId.
-    local bag, slot = findItemInBags(nil, pending.itemId)
-    if bag then useContainerItem(bag, slot) end
+    ns:Print(("Place %s in the trade window."):format(pending.itemLink or ("item " .. tostring(pending.itemId or "?"))), "success")
     -- Do NOT clear outstanding here; only on a completed trade.
 end
 

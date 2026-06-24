@@ -207,6 +207,15 @@ end
 
 local CHANGELOG_VERSIONS = {
     {
+        version = "1.2.34",
+        summary = "Protected action hotfix",
+        details = {
+            "Removed protected automatic targeting/trade actions from Loot Council assignment reminders.",
+            "Removed protected automatic trade-opening and item-placement calls from Loot Distribution awards.",
+            "Loot assignment trade helpers now print safe reminders instead of asking Blizzard's secure UI to target, open trade, or move bag items automatically.",
+        },
+    },
+    {
         version = "1.2.33",
         summary = "Loot Council self-sync hotfix",
         details = {
